@@ -100,6 +100,7 @@ export interface Behaviour {
 
 export interface SelectionOptions {
     selectionAreaClass: string;
+    selectionAreaZIndex: string | undefined;
     selectionContainerClass: string | undefined;
     container: Quantify<string | HTMLElement>;
 

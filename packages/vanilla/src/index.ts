@@ -58,6 +58,7 @@ export default class SelectionArea extends EventTarget<SelectionEvents> {
 
         this._options = {
             selectionAreaClass: 'selection-area',
+            selectionAreaZIndex: '1',
             selectionContainerClass: undefined,
             selectables: [],
             document: window.document,
@@ -107,7 +108,7 @@ export default class SelectionArea extends EventTarget<SelectionEvents> {
             }
         }
 
-        const {document, selectionAreaClass, selectionContainerClass} = this._options;
+        const {document, selectionAreaClass, selectionContainerClass, selectionAreaZIndex} = this._options;
         this._area = document.createElement('div');
         this._clippingElement = document.createElement('div');
         this._clippingElement.appendChild(this._area);
@@ -127,7 +128,7 @@ export default class SelectionArea extends EventTarget<SelectionEvents> {
             position: 'fixed',
             transform: 'translate3d(0, 0, 0)', // https://stackoverflow.com/a/38268846
             pointerEvents: 'none',
-            zIndex: '1'
+            zIndex: selectionAreaZIndex ?? '1'
         });
 
         this._frame = frames((evt: MouseEvent | TouchEvent) => {
@@ -382,6 +383,15 @@ export default class SelectionArea extends EventTarget<SelectionEvents> {
 
         _areaLocation.x2 = x;
         _areaLocation.y2 = y;
+
+        /**
+         * The selection-area will also cover other element which are
+         * out of the current scrollable parent. So find all elements
+         * which are in the current scrollable element. Later these are
+         * the only selectables instead of all.
+         */
+        this.resolveSelectables();
+        this._selectables = this._selectables.filter(s => this._targetElement!.contains(s));
 
         if (this._scrollAvailable && !this._scrollingActive && (_scrollSpeed.y || _scrollSpeed.x)) {
 
